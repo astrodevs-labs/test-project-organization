@@ -14,10 +14,12 @@ jobs:
         with:
           script: |
             const typeFieldId = 40615192;
-          #github.rest.projects.listForRepo({
-          #  owner: context.repo.owner,
-          #  repo: context.repo.repo
-          #}).then(projects => {
+            github.rest.projects.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo
+            }).then(projects => {
+              console.log(projects.data)
+            })
           #  const project = projects.data.find(project => project.name === 'Project Management')
           #  github.projects.listColumns({
           #    project_id: project.id
