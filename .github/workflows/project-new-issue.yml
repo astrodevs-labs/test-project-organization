@@ -135,6 +135,7 @@ jobs:
       - name: Set status to To describe
         uses: actions/github-script@v6
         env:
+          INFORMATIONS_RAW: ${{ steps.create-project-card.outputs.result }}
           INFORMATIONS: ${{ toJSON(steps.create-project-card.outputs.result) }}
         with:
           github-token: ${{ secrets.ADMIN_PAT }}
@@ -146,17 +147,21 @@ jobs:
             }`
 
             console.log(process.env.INFORMATIONS)
+            console.log(process.env.INFORMATIONS_RAW)
             const informations = JSON.parse(process.env.INFORMATIONS)
+            const informations_raw = JSON.parse(process.env.INFORMATIONS_RAW)
             console.log(typeof informations)
+            console.log(typeof informations_raw)
             console.log(informations)
+            console.log(informations_raw)
 
-            const statusField = informations.fields.find(field => field.field.name === 'Status')
+            const statusField = informations_raw.fields.find(field => field.field.name === 'Status')
             const toDescribeOption = statusField.field.options.find(option => option.name === 'To describe')
 
             const variables = {
               input: {
-                projectId: informations.projectId,
-                itemId: informations.cardId,
+                projectId: informations_raw.projectId,
+                itemId: informations_raw.cardId,
                 value: {
                   singleSelectOptionId: toDescribeOption.id
                 },
