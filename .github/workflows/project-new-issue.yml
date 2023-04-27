@@ -122,20 +122,20 @@ jobs:
             const result = await github.graphql(createMutation, createVariables)
             const cardId = result.addProjectV2ItemById.item.id
             const cardFields = result.addProjectV2ItemById.item.fieldValues.nodes
-            console.log(cardId, cardFields)
 
-            return {
+            const result = {
               cardId: cardId,
               projectId: project.id,
               fields: cardFields
             }
+
+            console.log(result)
+            return result
         
       - name: Set status to To describe
         uses: actions/github-script@v6
         env:
-          CARD_ID: ${{ steps.create-project-card.outputs.cardId }}
-          PROJECT_ID: ${{ steps.create-project-card.outputs.projectId }}
-          FIELDS: ${{ toJson(steps.create-project-card.outputs.fields) }}
+          INFORMATIONS: ${{ toJSON(steps.create-project-card.outputs.result) }}
         with:
           github-token: ${{ secrets.ADMIN_PAT }}
           script: |
@@ -144,17 +144,15 @@ jobs:
                 
               }
             }`
-            console.log(process.env)
-            const fields = JSON.parse(process.env.FIELDS)
-            console.log(fields)
+            const informations = JSON.parse(process.env.INFORMATIONS)
 
-            const statusField = fields.find(field => field.field.name === 'Status')
+            const statusField = informations.fields.find(field => field.field.name === 'Status')
             const toDescribeOption = statusField.field.options.find(option => option.name === 'To describe')
 
             const variables = {
               input: {
-                projectId: process.env.PROJECT_ID,
-                itemId: process.env.CARD_ID,
+                projectId: informations.projectId,
+                itemId: informations.cardId,
                 value: {
                   singleSelectOptionId: toDescribeOption.id
                 },
