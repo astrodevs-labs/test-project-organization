@@ -139,13 +139,15 @@ jobs:
                 
               }
             }`
+            // steps is not available in this context
+            const steps = context.payload.workflow_run.steps
 
             const statusField = steps.create-project-card.outputs.fields.find(field => field.field.name === 'Status')
             const toDescribeOption = statusField.field.options.find(option => option.name === 'To describe')
 
             const variables = {
               input: {
-                id: `${steps.create-project-card.outputs.cardId}`,
+                id: steps.create-project-card.outputs.cardId,
                 valueId: toDescribeOption.id,
                 fieldId: statusField.field.id
               }
