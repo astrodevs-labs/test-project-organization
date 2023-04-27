@@ -92,6 +92,18 @@ jobs:
                         ... on ProjectV2ItemFieldSingleSelectValue {
                           name
                           id
+                          field {
+                            ... on ProjectV2Field {
+                              id
+                              name
+                            }
+                            ... on ProjectV2SingleSelectField {
+                              options {
+                                name
+                                id
+                              }
+                            }
+                          }
                         }
                       }
                     }
@@ -128,11 +140,14 @@ jobs:
               }
             }`
 
+            const statusField = steps.create-project-card.outputs.fields.find(field => field.field.name === 'Status')
+            const toDescribeOption = statusField.field.options.find(option => option.name === 'To describe')
+
             const variables = {
               input: {
-                id: ${{ steps.create-project-card.outputs.cardId }},
-                valueId: "6320a3d5",
-                fieldId: "40615192"
+                id: `${steps.create-project-card.outputs.cardId}`,
+                valueId: toDescribeOption.id,
+                fieldId: statusField.field.id
               }
             }
 
