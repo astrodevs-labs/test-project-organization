@@ -108,7 +108,7 @@ jobs:
             console.log(informations)
 
             const statusField = informations.fields.find(field => field.name === 'Status')
-            const toDescribeOption = statusField.field.options.find(option => option.name === 'To describe')
+            const toDescribeOption = statusField.options.find(option => option.name === 'To describe')
 
             const variables = {
               input: {
@@ -117,7 +117,7 @@ jobs:
                 value: {
                   singleSelectOptionId: toDescribeOption.id
                 },
-                fieldId: statusField.field.id
+                fieldId: statusField.id
               }
             }
 
