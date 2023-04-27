@@ -144,7 +144,10 @@ jobs:
                 
               }
             }`
+
+            console.log(process.env.INFORMATIONS)
             const informations = JSON.parse(process.env.INFORMATIONS)
+            console.log(informations)
 
             const statusField = informations.fields.find(field => field.field.name === 'Status')
             const toDescribeOption = statusField.field.options.find(option => option.name === 'To describe')
