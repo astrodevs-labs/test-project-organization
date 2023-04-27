@@ -139,15 +139,14 @@ jobs:
                 
               }
             }`
-            // steps is not available in this context
-            const steps = context.payload.workflow_run.steps
+            const informations = ${{ toJson(steps.create-project-card.outputs.result) }}
 
-            const statusField = steps.create-project-card.outputs.fields.find(field => field.field.name === 'Status')
+            const statusField = informations.fields.find(field => field.field.name === 'Status')
             const toDescribeOption = statusField.field.options.find(option => option.name === 'To describe')
 
             const variables = {
               input: {
-                id: steps.create-project-card.outputs.cardId,
+                id: informations.cardId,
                 valueId: toDescribeOption.id,
                 fieldId: statusField.field.id
               }
