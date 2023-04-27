@@ -14,9 +14,8 @@ jobs:
         with:
           script: |
             const typeFieldId = 40615192;
-            github.rest.projects.listForRepo({
-              owner: context.repo.owner,
-              repo: context.repo.repo
+            github.rest.projects.listForOrg({
+              org: context.repo.owner,
             }).then(projects => {
               console.log(projects.data)
             })
