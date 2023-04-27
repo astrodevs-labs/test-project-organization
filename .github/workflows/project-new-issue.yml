@@ -44,7 +44,7 @@ jobs:
                   item {
                     id
                     project {
-                      fields {
+                      fields(first: 20) {
                         nodes {
                           ... on ProjectV2Field {
                             name
