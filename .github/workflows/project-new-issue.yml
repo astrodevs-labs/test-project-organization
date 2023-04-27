@@ -30,6 +30,7 @@ jobs:
 
             const projects = await github.graphql(query, variables)
             console.log(projects)
+          github-token: ${{ secrets.ADMIN_PAT }}
 
 
       #- name: Translate label to custom field
