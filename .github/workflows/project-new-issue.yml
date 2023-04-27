@@ -58,7 +58,7 @@ jobs:
                           id
                         }
                         ... on ProjectV2ItemFieldLabelValue {
-                          labels(first: $first) {
+                          labels(first: 20) {
                             nodes {
                               name
                               id
