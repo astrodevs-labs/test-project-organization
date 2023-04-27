@@ -107,7 +107,7 @@ jobs:
             console.log(typeof informations)
             console.log(informations)
 
-            const statusField = informations.fields.find(field => field.field ? field.field.name === 'Status' : false)
+            const statusField = informations.fields.find(field => field.name === 'Status')
             const toDescribeOption = statusField.field.options.find(option => option.name === 'To describe')
 
             const variables = {
