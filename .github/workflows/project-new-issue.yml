@@ -13,28 +13,26 @@ jobs:
         uses: actions/github-script@v6
         with:
           script: |
-            const typeFieldId = 40615192;
-            console.log(context.repo.owner)
-            github.rest.projects.listForOrg({
-              org: context.repo.owner,
-            }).then(projects => {
-              console.log(projects)
-            })
-          #  const project = projects.data.find(project => project.name === 'Project Management')
-          #  github.projects.listColumns({
-          #    project_id: project.id
-          #  }).then(columns => {
-          #    const column = columns.data.find(column => column.name === 'To describe')
-          #    github.projects.createCard({
-          #      column_id: column.id,
-          #      content_id: context.payload.issue.id,
-          #      content_type: 'Issue',
-          #      note: context.payload.issue.title,
-          #      custom_field_id: typeFieldId,
-          #      value_id: 6320a3d5
-          #    })
-          #  })
-          #})
+            const projects = await github.graphql(`
+              query($organization: String!) {
+                organization(login: $organization) {
+                  projectsv2(first: 10) {
+                    nodes {
+                      id
+                      name
+                      columns(first: 10) {
+                        nodes {
+                          id
+                          name
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            `)
+            console.log(projects)
+
 
       #- name: Translate label to custom field
       #  uses: actions/github-script@v6
