@@ -123,14 +123,14 @@ jobs:
             const cardId = result.addProjectV2ItemById.item.id
             const cardFields = result.addProjectV2ItemById.item.fieldValues.nodes
 
-            const result = {
+            const ret = {
               cardId: cardId,
               projectId: project.id,
               fields: cardFields
             }
 
-            console.log(result)
-            return result
+            console.log(ret)
+            return ret
         
       - name: Set status to To describe
         uses: actions/github-script@v6
