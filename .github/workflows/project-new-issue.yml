@@ -51,7 +51,7 @@ jobs:
                           duration
                         }
                         ... on ProjectV2ItemFieldLabelValue {
-                          labels {
+                          labels(first: 20) {
                             nodes {
                               name
                               id
