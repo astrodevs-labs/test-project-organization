@@ -121,6 +121,8 @@ jobs:
               }
             }
 
+            await github.graphql(mutation, variables)
+
       #- name: Translate label to custom field
             
       
