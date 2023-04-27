@@ -16,7 +16,7 @@ jobs:
             const projects = await github.graphql(`
               query($organization: String!) {
                 organization(login: $organization) {
-                  projectsv2(first: 10) {
+                  projectsV2(first: 10) {
                     nodes {
                       id
                       name
