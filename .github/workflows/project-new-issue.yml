@@ -12,6 +12,7 @@ jobs:
       - name: Create project card
         uses: actions/github-script@v6
         with:
+          github-token: ${{ secrets.ADMIN_PAT }}
           script: |
             const query = `
               query($organization: String!) {
@@ -41,20 +42,32 @@ jobs:
                 addProjectV2ItemById(input: $input) {
                   item {
                     id
-                    fieldValues(first: 10) {
+                    fieldValues {
                       nodes {
                         ... on ProjectV2ItemFieldIterationValue {
-                          id
                           title
                           startDate
                           iterationId
                           duration
+                          field {
+                            ... on ProjectV2Field {
+                              id
+                              name
+                            }
+                          }
+                          id
                         }
                         ... on ProjectV2ItemFieldLabelValue {
-                          labels(first: 20) {
+                          labels(first: $first) {
                             nodes {
                               name
                               id
+                            }
+                          }
+                          field {
+                            ... on ProjectV2Field {
+                              id
+                              name
                             }
                           }
                         }
@@ -63,9 +76,22 @@ jobs:
                           id
                           field {
                             ... on ProjectV2Field {
+                              id
                               name
                             }
                           }
+                        }
+                        ... on ProjectV2ItemFieldDateValue {
+                          id
+                          field {
+                            ... on ProjectV2Field {
+                              name
+                            }
+                          }
+                        }
+                        ... on ProjectV2ItemFieldSingleSelectValue {
+                          name
+                          id
                         }
                       }
                     }
@@ -81,36 +107,35 @@ jobs:
             }
 
             const result = await github.graphql(createMutation, createVariables)
-            console.log(result)
-          github-token: ${{ secrets.ADMIN_PAT }}
+            const cardId = result.addProjectV2ItemById.item.id
+            const cardFields = result.addProjectV2ItemById.item.fieldValues.nodes
+            console.log(cardId, cardFields)
 
+            return {
+              cardId: cardId,
+              projectId: project.id,
+              fields: cardFields
+            }
+        
+      - name: Set status to To describe
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.ADMIN_PAT }}
+          script: |
+            const mutation = `mutation UpdateProjectV2ItemFieldValue($input: UpdateProjectV2ItemFieldValueInput!) {
+              updateProjectV2ItemFieldValue(input: $input) {
+                
+              }
+            }`
+
+            const variables = {
+              input: {
+                id: ${{ steps.create-project-card.outputs.cardId }},
+                valueId: "6320a3d5",
+                fieldId: "40615192"
+              }
+            }
 
       #- name: Translate label to custom field
-      #  uses: actions/github-script@v6
-      #  with:
-      #    script: |
-      #      const typeFieldId = 40615192;
-      #      github.projects.listForRepo({
-      #        owner: context.repo.owner,
-      #        repo: context.repo.repo
-      #      }).then(projects => {
-      #        const project = projects.data.find(project => project.name === 'Project Management')
-      #        github.projects.listColumns({
-      #          project_id: project.id
-      #        }).then(columns => {
-      #          const column = columns.data.find(column => column.name === 'To describe')
-      #          github.projects.listCards({
-      #            column_id: column.id
-      #          }).then(cards => {
-      #            const card = cards.data.find(card => card.content_url === context.payload.issue.url)
-      #            github.projects.updateCard({
-      #              card_id: card.id,
-      #              column_id: column.id,
-      #              custom_field_id: typeFieldId,
-      #              value_id: 6320a3d5
-      #            })
-      #          })
-      #        })
-      #      })
             
       
