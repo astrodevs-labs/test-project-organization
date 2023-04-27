@@ -96,9 +96,11 @@ jobs:
         with:
           github-token: ${{ secrets.ADMIN_PAT }}
           script: |
-            const mutation = `mutation UpdateProjectV2ItemFieldValue($input: UpdateProjectV2ItemFieldValueInput!) {
+            const mutation = `mutation($input: UpdateProjectV2ItemFieldValueInput!) {
               updateProjectV2ItemFieldValue(input: $input) {
-                
+                projectV2Item {
+                  id
+                }
               }
             }`
 
