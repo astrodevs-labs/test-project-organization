@@ -19,6 +19,7 @@ jobs:
                   projectsV2(first: 10) {
                     nodes {
                       id
+                      title
                     }
                   }
                 }
@@ -29,7 +30,9 @@ jobs:
             }
 
             const projects = await github.graphql(query, variables)
-            console.log(projects)
+            console.log(projects.organization.projectsV2.nodes)
+            const project = projects.organization.projectsV2.nodes.find(project => project.title === 'Project Management')
+            console.log(project)
           github-token: ${{ secrets.ADMIN_PAT }}
 
 
