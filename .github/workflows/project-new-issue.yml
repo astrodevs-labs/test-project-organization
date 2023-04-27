@@ -43,15 +43,35 @@ jobs:
                     id
                     fieldValues {
                       nodes {
-                        id
-                        value
+                        ... on ProjectV2ItemFieldIterationValue {
+                          id
+                          title
+                          startDate
+                          iterationId
+                          duration
+                        }
+                        ... on ProjectV2ItemFieldLabelValue {
+                          labels {
+                            nodes {
+                              name
+                              id
+                            }
+                          }
+                        }
+                        ... on ProjectV2ItemFieldNumberValue {
+                          number
+                          id
+                          field {
+                            ... on ProjectV2Field {
+                              name
+                            }
+                          }
+                        }
                       }
                     }
                   }
                 }
-                
-              }
-            `
+              }`
 
             const createVariables = {
               input: {
