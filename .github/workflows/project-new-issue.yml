@@ -19,12 +19,6 @@ jobs:
                   projectsV2(first: 10) {
                     nodes {
                       id
-                      columns(first: 10) {
-                        nodes {
-                          id
-                          name
-                        }
-                      }
                     }
                   }
                 }
