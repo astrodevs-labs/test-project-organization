@@ -10,14 +10,6 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Create project card
-        uses: peter-evans/create-or-update-project-card@v2
-        with:
-          project-name: 'Project Management'
-          column-name: 'To describe'
-          issue-number: ${{ github.event.issue.number }}
-          token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Translate label to custom field
         uses: actions/github-script@v6
         with:
           script: |
@@ -31,18 +23,43 @@ jobs:
                 project_id: project.id
               }).then(columns => {
                 const column = columns.data.find(column => column.name === 'To describe')
-                github.projects.listCards({
-                  column_id: column.id
-                }).then(cards => {
-                  const card = cards.data.find(card => card.content_url === context.payload.issue.url)
-                  github.projects.updateCard({
-                    card_id: card.id,
-                    column_id: column.id,
-                    custom_field_id: typeFieldId,
-                    value_id: 6320a3d5
-                  })
+                github.projects.createCard({
+                  column_id: column.id,
+                  content_id: context.payload.issue.id,
+                  content_type: 'Issue',
+                  note: context.payload.issue.title,
+                  custom_field_id: typeFieldId,
+                  value_id: 6320a3d5
                 })
               })
             })
+
+      #- name: Translate label to custom field
+      #  uses: actions/github-script@v6
+      #  with:
+      #    script: |
+      #      const typeFieldId = 40615192;
+      #      github.projects.listForRepo({
+      #        owner: context.repo.owner,
+      #        repo: context.repo.repo
+      #      }).then(projects => {
+      #        const project = projects.data.find(project => project.name === 'Project Management')
+      #        github.projects.listColumns({
+      #          project_id: project.id
+      #        }).then(columns => {
+      #          const column = columns.data.find(column => column.name === 'To describe')
+      #          github.projects.listCards({
+      #            column_id: column.id
+      #          }).then(cards => {
+      #            const card = cards.data.find(card => card.content_url === context.payload.issue.url)
+      #            github.projects.updateCard({
+      #              card_id: card.id,
+      #              column_id: column.id,
+      #              custom_field_id: typeFieldId,
+      #              value_id: 6320a3d5
+      #            })
+      #          })
+      #        })
+      #      })
             
       
