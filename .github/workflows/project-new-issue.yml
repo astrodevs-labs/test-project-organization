@@ -11,6 +11,7 @@ jobs:
       - uses: actions/checkout@v2
       - name: Create project card
         uses: actions/github-script@v6
+        id: create-project-card
         with:
           github-token: ${{ secrets.ADMIN_PAT }}
           script: |
@@ -139,7 +140,7 @@ jobs:
                 
               }
             }`
-            const informations = ${{ toJson(steps.create-project-card.outputs.result) }}
+            const informations = steps.create-project-card.outputs
 
             const statusField = informations.fields.find(field => field.field.name === 'Status')
             const toDescribeOption = statusField.field.options.find(option => option.name === 'To describe')
