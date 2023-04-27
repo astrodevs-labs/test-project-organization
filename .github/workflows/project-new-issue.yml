@@ -14,10 +14,11 @@ jobs:
         with:
           script: |
             const typeFieldId = 40615192;
+            console.log(context.repo.owner)
             github.rest.projects.listForOrg({
               org: context.repo.owner,
             }).then(projects => {
-              console.log(projects.data)
+              console.log(projects)
             })
           #  const project = projects.data.find(project => project.name === 'Project Management')
           #  github.projects.listColumns({
