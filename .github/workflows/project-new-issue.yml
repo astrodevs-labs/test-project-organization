@@ -104,9 +104,7 @@ jobs:
               }
             }`
 
-            console.log(process.env.INFORMATIONS)
             const informations = JSON.parse(process.env.INFORMATIONS)
-            console.log(typeof informations)
             console.log(informations)
 
             const statusField = informations.fields.find(field => field.name === 'Status')
@@ -125,6 +123,61 @@ jobs:
 
             await github.graphql(mutation, variables)
 
-      #- name: Translate label to custom field
+
+      - name: Set type according to label
+        uses: actions/github-script@v6
+        env:
+          INFORMATIONS: ${{ steps.create-project-card.outputs.result }}
+          IS_USER_STORY: ${{ contains(github.event.issue.labels.*.name, 'User Story') }}
+          IS_BUG: ${{ contains(github.event.issue.labels.*.name, 'Bug') }}
+          IS_TASK: ${{ contains(github.event.issue.labels.*.name, 'Task') }}
+          IS_TECHNICAL_STORY: ${{ contains(github.event.issue.labels.*.name, 'Technical Story') }}
+        with:
+          github-token: ${{ secrets.ADMIN_PAT }}
+          script: |
+            const mutation = `mutation($input: UpdateProjectV2ItemFieldValueInput!) {
+              updateProjectV2ItemFieldValue(input: $input) {
+                projectV2Item {
+                  id
+                }
+              }
+            }`
+
+            const informations = JSON.parse(process.env.INFORMATIONS)
+            console.log(typeof informations)
+            console.log(informations)
+            const isUserStory = JSON.parse(process.env.IS_USER_STORY)
+            const isBug = JSON.parse(process.env.IS_BUG)
+            const isTask = JSON.parse(process.env.IS_TASK)
+            const isTechnicalStory = JSON.parse(process.env.IS_TECHNICAL_STORY)
+            let optionToFind = '';
+
+            if (isUserStory && !isTechnicalStory) {
+              optionToFind = 'User story'
+            } else if (isTechnicalStory) {
+              optionToFind = 'Technical story'
+            } else if (isBug) {
+              optionToFind = 'Bug'
+            } else if (isTask) {
+              optionToFind = 'Task'
+            } 
+
+            const typeField = informations.fields.find(field => field.name === 'Type')
+            const userStoryOption = typeField.options.find(option => option.name === optionToFind)
+
+            const variables = {
+              input: {
+                projectId: informations.projectId,
+                itemId: informations.cardId,
+                value: {
+                  singleSelectOptionId: userStoryOption.id
+                },
+                fieldId: typeField.id
+              }
+            }
+
+            await github.graphql(mutation, variables)
+
+
             
       
