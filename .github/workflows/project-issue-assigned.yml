@@ -151,6 +151,23 @@ jobs:
             console.log(`Branch name: ${branchName}`)
             return { branchName }
 
+      - name: Create branch
+        id: create-branch
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const branchName = context.payload.branchName
+            const ref = `refs/heads/${branchName}`
+            const sha = context.payload.issue.node_id
+            const createRef = await github.git.createRef({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref,
+              sha
+            })
+            console.log(createRef)
+            return { ref: createRef.data.ref }
 
 
 
