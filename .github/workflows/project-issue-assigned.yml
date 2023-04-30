@@ -47,22 +47,22 @@ jobs:
               organization(login: $organization) {
                 repository(name: $repo) {
                   issue(number: $number) {
-                    trackedInIssues {
+                    trackedInIssues(first: 1) {
                       nodes {
                         title
-                        trackedInIssues {
+                        trackedInIssues(first: 1) {
                           nodes {
                             title
-                            trackedInIssues {
+                            trackedInIssues(first: 1) {
                               nodes {
                                 title
-                                trackedInIssues {
+                                trackedInIssues(first: 1) {
                                   nodes {
                                     title
-                                    trackedInIssues {
+                                    trackedInIssues(first: 1) {
                                       nodes {
                                         title
-                                        trackedInIssues {
+                                        trackedInIssues(first: 1) {
                                           nodes {
                                             title
                                           }
