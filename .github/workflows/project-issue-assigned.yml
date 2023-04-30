@@ -43,7 +43,7 @@ jobs:
             }
 
             const query = `query Nodes($number: Int!, $repo: String!, $organization: String!) {
-              organization(login: $orgnization) {
+              organization(login: $organization) {
                 repository(name: $repo) {
                   issue(number: $number) {
                     trackedInIssues {
