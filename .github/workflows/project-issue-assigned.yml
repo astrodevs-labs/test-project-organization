@@ -23,7 +23,7 @@ jobs:
         with:
           #github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const branchName = ''
+            let branchName = ''
             const isUserStory = JSON.parse(process.env.IS_USER_STORY)
             const isBug = JSON.parse(process.env.IS_BUG)
             const isTask = JSON.parse(process.env.IS_TASK)
@@ -31,11 +31,11 @@ jobs:
             const sanitizedTitle = process.env.TITLE.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase()
 
             if (isUserStory && !isTechnicalStory)
-              branchName += `${process.env.BRANCH_USER_STORY_PREFIX}/${sanitizedTitle}`
+              branchName = `${process.env.BRANCH_USER_STORY_PREFIX}/${sanitizedTitle}`
             else if (isBug)
-              branchName += `${process.env.BRANCH_BUG_PREFIX}/${sanitizedTitle}`
+              branchName = `${process.env.BRANCH_BUG_PREFIX}/${sanitizedTitle}`
             else if (isTechnicalStory)
-              branchName += `${process.env.BRANCH_TECHNICAL_STORY_PREFIX}/${sanitizedTitle}`
+              branchName = `${process.env.BRANCH_TECHNICAL_STORY_PREFIX}/${sanitizedTitle}`
 
             if (!isTask && (isUserStory || isBug || isTechnicalStory)) {
               console.log(`Branch name: ${branchName}`)
