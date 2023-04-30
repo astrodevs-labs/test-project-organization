@@ -82,9 +82,9 @@ jobs:
             }`
 
             const variables = {
-              number: github.context.issue.number,
-              repo: github.context.repo.repo,
-              organization: github.context.repo.owner
+              number: context.payload.issue.node_id,
+              repo: context.repo.repo,
+              organization: context.repo.owner
             }
 
             const result = await github.graphql(query, variables)
