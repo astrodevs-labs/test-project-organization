@@ -12,6 +12,8 @@ jobs:
       - name: Create project card
         uses: actions/github-script@v6
         id: create-project-card
+        env:
+          PROJECT_MANAGEMENT_NAME: ${{ vars.PROJECT_MANAGEMENT_NAME }}
         with:
           github-token: ${{ secrets.ADMIN_PAT }}
           script: |
@@ -32,7 +34,8 @@ jobs:
             }
 
             const projects = await github.graphql(query, variables)
-            const project = projects.organization.projectsV2.nodes.find(project => project.title === 'Project Management')
+            console.log(process.env.MANAGEMENT_PROJECT_NAME)
+            const project = projects.organization.projectsV2.nodes.find(project => project.title === process.env.PROJECT_MANAGEMENT_NAME)
             if (!project) {
               throw new Error('Project Management project not found')
             }
@@ -93,6 +96,7 @@ jobs:
         uses: actions/github-script@v6
         env:
           INFORMATIONS: ${{ steps.create-project-card.outputs.result }}
+          PROJECT_MANAGEMENT_STATUS_START: ${{ vars.PROJECT_MANAGEMENT_STATUS_START }}
         with:
           github-token: ${{ secrets.ADMIN_PAT }}
           script: |
@@ -108,7 +112,7 @@ jobs:
             console.log(informations)
 
             const statusField = informations.fields.find(field => field.name === 'Status')
-            const toDescribeOption = statusField.options.find(option => option.name === 'To describe')
+            const toDescribeOption = statusField.options.find(option => option.name === process.env.PROJECT_MANAGEMENT_STATUS_START)
 
             const variables = {
               input: {
@@ -128,10 +132,15 @@ jobs:
         uses: actions/github-script@v6
         env:
           INFORMATIONS: ${{ steps.create-project-card.outputs.result }}
-          IS_USER_STORY: ${{ contains(github.event.issue.labels.*.name, 'User Story') }}
-          IS_BUG: ${{ contains(github.event.issue.labels.*.name, 'Bug') }}
-          IS_TASK: ${{ contains(github.event.issue.labels.*.name, 'Task') }}
-          IS_TECHNICAL_STORY: ${{ contains(github.event.issue.labels.*.name, 'Technical Story') }}
+          TYPE: ${{ vars.PROJECT_TYPE_NAME }}
+          USER_STORY: ${{ vars.PROJECT_TYPE_USER_STORY }}
+          BUG: ${{ vars.PROJECT_TYPE_BUG }}
+          TASK: ${{ vars.PROJECT_TYPE_TASK }}
+          TECHNICAL_STORY: ${{ vars.PROJECT_TYPE_TECHNICAL_STORY }}
+          IS_USER_STORY: ${{ contains(github.event.issue.labels.*.name, vars.PROJECT_TYPE_USER_STORY) }}
+          IS_BUG: ${{ contains(github.event.issue.labels.*.name, vars.PROJECT_TYPE_BUG) }}
+          IS_TASK: ${{ contains(github.event.issue.labels.*.name, vars.PROJECT_TYPE_TASK) }}
+          IS_TECHNICAL_STORY: ${{ contains(github.event.issue.labels.*.name, vars.PROJECT_TYPE_TECHNICAL_STORY) }}
         with:
           github-token: ${{ secrets.ADMIN_PAT }}
           script: |
@@ -153,16 +162,16 @@ jobs:
             let optionToFind = '';
 
             if (isUserStory && !isTechnicalStory) {
-              optionToFind = 'User story'
+              optionToFind = process.env.USER_STORY
             } else if (isTechnicalStory) {
-              optionToFind = 'Technical story'
+              optionToFind = process.env.TECHNICAL_STORY
             } else if (isBug) {
-              optionToFind = 'Bug'
+              optionToFind = process.env.BUG
             } else if (isTask) {
-              optionToFind = 'Task'
+              optionToFind = process.env.TASK
             } 
 
-            const typeField = informations.fields.find(field => field.name === 'Type')
+            const typeField = informations.fields.find(field => field.name === process.env.TYPE)
             const userStoryOption = typeField.options.find(option => option.name === optionToFind)
 
             const variables = {

@@ -1,0 +1,94 @@
+on:
+  issues:
+    types: [assigned]
+
+
+jobs:
+  create-branch-and-draft:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Find branch name
+        id: find-branch-name
+        uses: actions/github-script@v3
+        env:
+          TITLE: ${{ github.event.issue.title }}
+          IS_USER_STORY: ${{ contains(github.event.issue.labels.*.name, vars.PROJECT_TYPE_USER_STORY) }}
+          IS_BUG: ${{ contains(github.event.issue.labels.*.name, vars.PROJECT_TYPE_BUG) }}
+          IS_TASK: ${{ contains(github.event.issue.labels.*.name, vars.PROJECT_TYPE_TASK) }}
+          IS_TECHNICAL_STORY: ${{ contains(github.event.issue.labels.*.name, vars.PROJECT_TYPE_TECHNICAL_STORY) }}
+          BRANCH_USER_STORY_PREFIX: ${{ vars.BRANCH_USER_STORY_PREFIX }}
+          BRANCH_BUG_PREFIX: ${{ vars.BRANCH_BUG_PREFIX }}
+          BRANCH_TECHNICAL_STORY_PREFIX: ${{ vars.BRANCH_TECHNICAL_STORY_PREFIX }}
+        with:
+          #github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const branchName = ''
+            const isUserStory = JSON.parse(process.env.IS_USER_STORY)
+            const isBug = JSON.parse(process.env.IS_BUG)
+            const isTask = JSON.parse(process.env.IS_TASK)
+            const isTechnicalStory = JSON.parse(process.env.IS_TECHNICAL_STORY)
+            const sanitizedTitle = process.env.TITLE.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase()
+
+            if (isUserStory && !isTechnicalStory)
+              branchName += `${process.env.BRANCH_USER_STORY_PREFIX}/${sanitizedTitle}`
+            else if (isBug)
+              branchName += `${process.env.BRANCH_BUG_PREFIX}/${sanitizedTitle}`
+            else if (isTechnicalStory)
+              branchName += `${process.env.BRANCH_TECHNICAL_STORY_PREFIX}/${sanitizedTitle}`
+
+            if (!isTask && (isUserStory || isBug || isTechnicalStory)) {
+              console.log(`Branch name: ${branchName}`)
+              return { branchName: branchName.replace(/--/g, '-') }
+            }
+
+            const query = `query Nodes($number: Int!, $repo: String!, $organization: String!) {
+              organization(login: $orgnization) {
+                repository(name: $repo) {
+                  issue(number: $number) {
+                    trackedInIssues {
+                      nodes {
+                        title
+                        trackedInIssues {
+                          nodes {
+                            title
+                            trackedInIssues {
+                              nodes {
+                                title
+                                trackedInIssues {
+                                  nodes {
+                                    title
+                                    trackedInIssues {
+                                      nodes {
+                                        title
+                                        trackedInIssues {
+                                          nodes {
+                                            title
+                                          }
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }`
+
+            const variables = {
+              number: github.context.issue.number,
+              repo: github.context.repo.repo,
+              organization: github.context.repo.owner
+            }
+
+            const result = await github.graphql(query, variables)
+            console.log(result)
+
+
+
