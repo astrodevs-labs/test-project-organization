@@ -160,7 +160,7 @@ jobs:
             const branchName = context.payload.branchName
             const ref = `refs/heads/${branchName}`
             const sha = context.payload.issue.node_id
-            const createRef = await github.git.createRef({
+            const createRef = await github.rest.git.createRef({
               owner: context.repo.owner,
               repo: context.repo.repo,
               ref,
