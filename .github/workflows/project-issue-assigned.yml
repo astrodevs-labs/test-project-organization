@@ -125,8 +125,10 @@ jobs:
             let node = result.organization.repository.issue.trackedInIssues.nodes[0]
             const nodes = [node.title]
             for (; node.trackedInIssues.nodes.length > 0; node = node.trackedInIssues.nodes[0]) {
+              console.log(node)
               nodes.push(node.title)
             }
+            console.log("end node", node)
             const isRootUserStory = node.labels.nodes.some(label => label.name === process.env.PROJECT_TYPE_USER_STORY)
             const isRootBug = node.labels.nodes.some(label => label.name === process.env.PROJECT_TYPE_BUG)
             const isRootTechnicalStory = node.labels.nodes.some(label => label.name === process.env.PROJECT_TYPE_TECHNICAL_STORY)
