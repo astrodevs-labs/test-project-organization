@@ -129,6 +129,7 @@ jobs:
               nodes.push(node.title)
             }
             console.log("end node", node)
+            console.log("labels", node.labels.nodes)
             const isRootUserStory = node.labels.nodes.some(label => label.name === process.env.PROJECT_TYPE_USER_STORY)
             const isRootBug = node.labels.nodes.some(label => label.name === process.env.PROJECT_TYPE_BUG)
             const isRootTechnicalStory = node.labels.nodes.some(label => label.name === process.env.PROJECT_TYPE_TECHNICAL_STORY)
