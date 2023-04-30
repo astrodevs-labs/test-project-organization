@@ -82,7 +82,7 @@ jobs:
             }`
 
             const variables = {
-              number: context.payload.issue.node_id,
+              number: parseInt(context.payload.issue.node_id),
               repo: context.repo.repo,
               organization: context.repo.owner
             }
