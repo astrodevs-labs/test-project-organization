@@ -123,7 +123,7 @@ jobs:
 
             const result = await github.graphql(query, variables)
             let node = result.organization.repository.issue.trackedInIssues.nodes[0]
-            const nodes = []
+            const nodes = [node.title]
             for (; node.trackedInIssues.nodes.length > 0; node = node.trackedInIssues.nodes[0]) {
               nodes.push(node.title)
             }
