@@ -190,7 +190,7 @@ jobs:
         
       - name: debug
         run: |
-          echo ${{ steps.check-pr-exists.outputs.prExists }}
+          echo ${{ steps.check-pr-exists.outputs }}
 
       - name: Create pull request
         if: steps.check-pr-exists.outputs.prExists == 'false'
