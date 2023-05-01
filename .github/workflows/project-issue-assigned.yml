@@ -187,6 +187,10 @@ jobs:
           git fetch --all
           git checkout ${{ fromJson(steps.find-branch-name.outputs.result).branchName }}
           (gh pr view --json number --jq '.number' && echo "{prExists}={true}" >> $GITHUB_OUTPUT) || echo "{prExists}={false}" >> $GITHUB_OUTPUT
+        
+      - name: debug
+        run: |
+          echo ${{ steps.check-pr-exists.outputs.prExists }}
 
       - name: Create pull request
         if: steps.check-pr-exists.outputs.prExists == 'false'
