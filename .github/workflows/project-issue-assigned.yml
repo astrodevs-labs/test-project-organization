@@ -159,17 +159,42 @@ jobs:
             console.log(`Branch name: ${branchName}`)
             return { branchName, baseBranch }
 
+      - name: Check if branch exists
+        id: check-branch-exists
+        run: |
+          git fetch --all
+          if [ `git branch --list $branch_name` ]
+          then
+            echo "::set-output name=branchExists::true"
+          else
+            echo "::set-output name=branchExists::false"
+          fi
+
       - name: Create branch
         id: create-branch
+        # if branch does not exist, create it
+        if: steps.check-branch-exists.outputs.branchExists == 'false'
         run: |
           git checkout -b ${{ fromJson(steps.find-branch-name.outputs.result).branchName }}
           git config --global user.email "ci@astrodevslabs.io" && git config --global user.name "Astrodevs CI"
           git commit --allow-empty -m "chore: create branch ${{ fromJson(steps.find-branch-name.outputs.result).branchName }}"
           git push origin ${{ fromJson(steps.find-branch-name.outputs.result).branchName }}
 
+      - name: Check if PR exists
+        id: check-pr-exists
+        run: |
+          gh pr view ${{ fromJson(steps.find-branch-name.outputs.result).branchName }} --repo ${{ github.event.repository.full_name }} --json number --jq .number
+          if [ $? -eq 0 ]
+          then
+            echo "::set-output name=prExists::true"
+          else
+            echo "::set-output name=prExists::false"
+          fi
+
       - name: Create pull request
+        if: steps.check-pr-exists.outputs.prExists == 'false'
         env:
-          GH_TOKEN: ${{ github.token }}
+          GH_TOKEN: ${{ secrets.ADMIN_PAT}}
         run: |
           gh pr create --title "${{ github.event.issue.title }}" --body "Solves #${{github.event.issue.number}}" --base ${{ fromJson(steps.find-branch-name.outputs.result).baseBranch }} --head ${{ fromJson(steps.find-branch-name.outputs.result).branchName }} --repo ${{ github.event.repository.full_name }} --draft
 
