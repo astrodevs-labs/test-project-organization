@@ -163,7 +163,7 @@ jobs:
         id: check-branch-exists
         run: |
           git fetch --all
-          if [ `git branch --list $branch_name` ]
+          if [ `git branch --list ${{ fromJson(steps.find-branch-name.outputs.result).branchName }}` ]
           then
             echo "::set-output name=branchExists::true"
           else
