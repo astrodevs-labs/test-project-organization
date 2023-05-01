@@ -168,6 +168,8 @@ jobs:
           git push origin ${{ fromJson(steps.find-branch-name.outputs.result).branchName }}
 
       - name: Create pull request
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           gh pr create --title "${{ github.event.issue.title }}" --body "Solves #${{github.event.issue.number}}" --base ${{ fromJson(steps.find-branch-name.outputs.result).baseBranch }} --head ${{ fromJson(steps.find-branch-name.outputs.result).branchName }} --repo ${{ github.event.repository.full_name }} --draft
 
