@@ -43,7 +43,10 @@ jobs:
 
             if (!isTask && (isUserStory || isBug || isTechnicalStory)) {
               console.log(`Branch name: ${branchName}`)
-              return { branchName: branchName.replace(/--/g, '-') }
+              return { 
+                branchName: branchName.replace(/--/g, '-'),
+                baseBranch: 'dev', 
+              }
             }
 
             const query = `query Nodes($number: Int!, $repo: String!, $organization: String!) {
@@ -139,35 +142,34 @@ jobs:
               return lowered.charAt(0).toUpperCase() + lowered.slice(1)
             })
 
-            if (isRootUserStory && !isRootTechnicalStory)
+            let baseBranch = 'dev'
+
+            if (isRootUserStory && !isRootTechnicalStory) {
               branchName = `${process.env.BRANCH_USER_STORY_PREFIX}/${sanitizedNodes.reverse().join('/')}/${sanitizedTitle}`
-            else if (isRootBug)
+              baseBranch = `${process.env.BRANCH_USER_STORY_PREFIX}/${sanitizedNodes.reverse().join('/').toLowerCase()}`
+            } else if (isRootBug) {
               branchName = `${process.env.BRANCH_BUG_PREFIX}/${sanitizedNodes.reverse().join('/')}/${sanitizedTitle}`
-            else if (isRootTechnicalStory)
+              baseBranch = `${process.env.BRANCH_BUG_PREFIX}/${sanitizedNodes.reverse().join('/').toLowerCase()}`
+            } else if (isRootTechnicalStory) {
               branchName = `${process.env.BRANCH_TECHNICAL_STORY_PREFIX}/${sanitizedNodes.reverse().join('/')}/${sanitizedTitle}`
-            else
+              baseBranch = `${process.env.BRANCH_TECHNICAL_STORY_PREFIX}/${sanitizedNodes.reverse().join('/').toLowerCase()}`
+            } else
               branchName = `${sanitizedNodes.reverse().join('/')}/${sanitizedTitle}`
             
             console.log(`Branch name: ${branchName}`)
-            return { branchName }
+            return { branchName, baseBranch }
 
       - name: Create branch
         id: create-branch
-        uses: actions/github-script@v6
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            const branchName = context.payload.branchName
-            const ref = `refs/heads/${branchName}`
-            const sha = context.payload.issue.node_id
-            const createRef = await github.rest.git.createRef({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              ref,
-              sha
-            })
-            console.log(createRef)
-            return { ref: createRef.data.ref }
+        run: |
+          git checkout -b ${{ steps.find-branch-name.outputs.result.branchName }}
+          git config --global user.email "ci@astrodevslabs.io" && git config --global user.name "Astrodevs CI"
+          git commit --allow-empty -m "chore: create branch ${{ steps.find-branch-name.outputs.result.branchName }}"
+          git push origin ${{ steps.find-branch-name.outputs.result.branchName }}
+
+      - name: Create pull request
+        run: |
+          gh pr create --title "${{ github.event.issue.title }}" --body "Solves #${{github.event.issue.number}}" --base ${{ steps.find-branch-name.outputs.result.baseBranch }} --head ${{ steps.find-branch-name.outputs.result.branchName }} --repo ${{ github.event.repository.full_name }} --draft
 
 
 
