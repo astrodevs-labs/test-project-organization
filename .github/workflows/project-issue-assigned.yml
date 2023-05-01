@@ -161,16 +161,13 @@ jobs:
 
       - name: Check if branch exists
         id: check-branch-exists
+        continue-on-error: true
         run: |
           git fetch --all
-          if [ `git branch --list ${{ fromJson(steps.find-branch-name.outputs.result).branchName }}` ]
-          then
-            echo "Branch exists"
-            echo "{branchExists}={true}" >> $GITHUB_OUTPUT
-          else
-            echo "Branch does not exist"
-            echo "{branchExists}={false}" >> $GITHUB_OUTPUT
-          fi
+          git branch --list ${{ fromJson(steps.find-branch-name.outputs.result).branchName }}
+          echo "Branch already exists"
+          echo "{branchExists}={true}" >> $GITHUB_OUTPUT
+
 
       - name: Create branch
         id: create-branch
@@ -189,14 +186,7 @@ jobs:
         run: |
           git fetch --all
           git checkout ${{ fromJson(steps.find-branch-name.outputs.result).branchName }}
-          if [ `git pr view --json number --jq '.number'` ]
-          then
-            echo 'PR exists'
-            echo "{prExists}={true}" >> $GITHUB_OUTPUT
-          else
-            echo 'PR does not exist'
-            echo "{prExists}={false}" >> $GITHUB_OUTPUT
-          fi
+          (gh pr view --json number --jq '.number' && echo "{prExists}={true}" >> $GITHUB_OUTPUT) || echo "{prExists}={false}" >> $GITHUB_OUTPUT
 
       - name: Create pull request
         if: steps.check-pr-exists.outputs.prExists == 'false'
