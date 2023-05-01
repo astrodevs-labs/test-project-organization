@@ -187,8 +187,9 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh pr view ${{ fromJson(steps.find-branch-name.outputs.result).branchName }} --repo ${{ github.event.repository.full_name }} --json number --jq .number
-          if [ $? -eq 0 ]
+          git fetch --all
+          git checkout ${{ fromJson(steps.find-branch-name.outputs.result).branchName }}
+          if [ `git pr view --json number --jq '.number'` ]
           then
             echo 'PR exists'
             echo "{prExists}={true}" >> $GITHUB_OUTPUT
