@@ -165,9 +165,11 @@ jobs:
           git fetch --all
           if [ `git branch --list ${{ fromJson(steps.find-branch-name.outputs.result).branchName }}` ]
           then
-            echo "::set-output name=branchExists::true"
+            echo "Branch exists"
+            echo "{branchExists}={true}" >> $GITHUB_OUTPUT
           else
-            echo "::set-output name=branchExists::false"
+            echo "Branch does not exist"
+            echo "{branchExists}={false}" >> $GITHUB_OUTPUT
           fi
 
       - name: Create branch
@@ -186,9 +188,11 @@ jobs:
           gh pr view ${{ fromJson(steps.find-branch-name.outputs.result).branchName }} --repo ${{ github.event.repository.full_name }} --json number --jq .number
           if [ $? -eq 0 ]
           then
-            echo "::set-output name=prExists::true"
+            echo 'PR exists'
+            echo "{prExists}={true}" >> $GITHUB_OUTPUT
           else
-            echo "::set-output name=prExists::false"
+            echo 'PR does not exist'
+            echo "{prExists}={false}" >> $GITHUB_OUTPUT
           fi
 
       - name: Create pull request
