@@ -38,11 +38,12 @@ jobs:
         run: |
           git fetch --all
           git checkout ${{ github.event.client_payload.headBranch }}
-          (gh pr view --json number --jq '.number' && echo "prExists=true" >> $GITHUB_OUTPUT) || echo "prExists=false" >> $GITHUB_OUTPUT
+          git pr list --repo ${{ github.event.repository.full_name }} --base ${{github.event.client_payload.baseBranch }} --head ${{github.event.client_payload.headBranch }} --state open | grep "No pull requests match your search" && echo "prExists=false" >> $GITHUB_OUTPUT
+          echo "prExists=true" >> $GITHUB_OUTPUT
 
       - name: Create pull request
-        if: steps.check-pr-exists.outputs.prExists == 'false'
+        if: steps.check-pr-exists.outputs.prExists != 'true'
         env:
           GH_TOKEN: ${{ secrets.ADMIN_PAT }}
         run: |
-          gh pr create --title "${{ github.event.client_payload.prTitle }}" --body "Solves #${{ github.event.client_payload.issueNumber }}"" --head ${{github.event.client_payload.headBranch }} --repo ${{ github.event.repository.full_name }} --draft
+          gh pr create --title "${{ github.event.client_payload.prTitle }}" --body "Solves #${{ github.event.client_payload.issueNumber }}" --base ${{github.event.client_payload.baseBranch }} --head ${{github.event.client_payload.headBranch }} --repo ${{ github.event.repository.full_name }} --draft
