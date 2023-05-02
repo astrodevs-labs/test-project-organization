@@ -163,4 +163,4 @@ jobs:
       - name: Create branch
         run: |
           echo "test"
-          echo ${{ toJson(fromJson(steps.find-branch-name.outputs.result).branches) }}
+          echo "${{ toJson(fromJson(steps.find-branch-name.outputs.result).branches) }}"
