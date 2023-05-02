@@ -155,12 +155,33 @@ jobs:
             console.log(`Branch name: ${branchName}`)
             let branches = ['dev']
             for (let i = 0; i < sanitizedNodes.length; i++) {
-              branches.push(`${prefix}/${sanitizedNodes.reverse().slice(0, i + 1).join('/')}`)
+              branches.push(`${prefix}/${sanitizedNodes.reverse().slice(0, i + 1).join('/').toLowerCase()}`)
             }
             branches.push(`${prefix}/${sanitizedNodes.reverse().join('/')}/${sanitizedTitle}`)
             return { branches }
         
       - name: Create branch
-        run: |
-          echo "test"
-          echo "${{ toJson(fromJson(steps.find-branch-name.outputs.result).branches) }}"
+        uses: actions/github-script@v6
+        env:
+          PR_TITLE: ${{ github.event.issue.title }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+        with:
+          script: |
+            const branches = context.payload.branches
+
+            for (let i = 0; i < branches.length - 1; i++) {
+              const branch = branches[i]
+              const nextBranch = branches[i + 1]
+              await github.rest.actions.createWorkflowDispatch({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                workflow_id: 'create-branch.yml',
+                ref: 'main',
+                inputs: {
+                  baseBranch: branch,
+                  headBranch: nextBranch,
+                  prTitle: process.env.PR_TITLE,
+                  issueNumber: process.env.ISSUE_NUMBER
+                }
+              })
+            }
