@@ -188,48 +188,23 @@ jobs:
                 issueNumber: process.env.ISSUE_NUMBER
               })
             }
+            console.log(output)
             return output
 
-  create-branch-and-draft:
-    needs: find-branches-names
-
-    strategy:
-      matrix:
-        branch: ${{ needs.find-branches-names.outputs.branches }}
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-
-      - name: Check if branch exists
-        id: check-branch-exists
-        continue-on-error: true
-        run: |
-          git fetch --all
-          (git branch --list ${{ matrix.branch.headBranch }} && echo "branchExists=true" >> $GITHUB_OUTPUT && echo "Branch already exists") || echo "branchExists=false" >> $GITHUB_OUTPUT
-
-
-      - name: Create branch
-        id: create-branch
-        # if branch does not exist, create it
-        if: steps.check-branch-exists.outputs.branchExists == 'false'
-        run: |
-          git checkout -b ${{ matrix.branch.headBranch }}
-          git config --global user.email "ci@astrodevslabs.io" && git config --global user.name "Astrodevs CI"
-          git commit --allow-empty -m "chore: create branch ${{ matrix.branch.headBranch }}"
-          git push origin ${{ matrix.branch.headBranch }}
-
-      - name: Check if PR exists
-        id: check-pr-exists
+      - name: call workflow
+        uses: actions/github-script@v6
         env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          git fetch --all
-          git checkout ${{ matrix.branch.headBranch }}
-          (gh pr view --json number --jq '.number' && echo "prExists=true" >> $GITHUB_OUTPUT) || echo "prExists=false" >> $GITHUB_OUTPUT
-
-      - name: Create pull request
-        if: steps.check-pr-exists.outputs.prExists == 'false'
-        env:
-          GH_TOKEN: ${{ secrets.ADMIN_PAT }}
-        run: |
-          gh pr create --title "${{ matrix.branch.prTitle }}" --body "Solves #${{ matrix.branch.baseBranch }} --head ${{matrix.branch.headBranch }} --repo ${{ github.event.repository.full_name }} --draft
+          BRANCHES: ${{ steps.format-branches.outputs.result }}
+        with:
+          github-token: ${{ secrets.ADMIN_PAT }}
+          script: |
+            const branches = JSON.parse(process.env.BRANCHES)
+            
+            for (let i = 0; i < branches.length; i++) {
+              await github.rest.repos.createDispatchEvent({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                event_type: 'create-branch-and-draft',
+                client_payload: branches[i]
+              })
+            }

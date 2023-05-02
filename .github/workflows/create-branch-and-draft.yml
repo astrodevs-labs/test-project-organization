@@ -1,0 +1,45 @@
+name: Create branch and draft
+
+on:
+  repository_dispatch:
+    types: [create-branch-and-draft]
+
+jobs:
+  create-branch-and-draft:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Check if branch exists
+        id: check-branch-exists
+        continue-on-error: true
+        run: |
+          git fetch --all
+          (git branch --list ${{ github.event.client_payload.headBranch }} && echo "branchExists=true" >> $GITHUB_OUTPUT && echo "Branch already exists") || echo "branchExists=false" >> $GITHUB_OUTPUT
+
+
+      - name: Create branch
+        id: create-branch
+        # if branch does not exist, create it
+        if: steps.check-branch-exists.outputs.branchExists == 'false'
+        run: |
+          git checkout -b ${{ github.event.client_payload.headBranch }}
+          git config --global user.email "ci@astrodevslabs.io" && git config --global user.name "Astrodevs CI"
+          git commit --allow-empty -m "chore: create branch ${{ github.event.client_payload.headBranch }}"
+          git push origin ${{ github.event.client_payload.headBranch }}
+
+      - name: Check if PR exists
+        id: check-pr-exists
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          git fetch --all
+          git checkout ${{ github.event.client_payload.headBranch }}
+          (gh pr view --json number --jq '.number' && echo "prExists=true" >> $GITHUB_OUTPUT) || echo "prExists=false" >> $GITHUB_OUTPUT
+
+      - name: Create pull request
+        if: steps.check-pr-exists.outputs.prExists == 'false'
+        env:
+          GH_TOKEN: ${{ secrets.ADMIN_PAT }}
+        run: |
+          gh pr create --title "${{ github.event.client_payload.prTitle }}" --body "Solves #${{ github.event.client_payload.baseBranch }} --head ${{github.event.client_payload.headBranch }} --repo ${{ github.event.repository.full_name }} --draft
