@@ -38,7 +38,7 @@ jobs:
         run: |
           git fetch --all
           git checkout ${{ github.event.client_payload.headBranch }}
-          gh pr list --repo ${{ github.event.repository.full_name }} --base ${{github.event.client_payload.baseBranch }} --head ${{github.event.client_payload.headBranch }} --state open | grep "No pull requests match your search" && echo "prExists=false" >> $GITHUB_OUTPUT
+          gh pr list --repo ${{ github.event.repository.full_name }} --base ${{github.event.client_payload.baseBranch }} --head ${{github.event.client_payload.headBranch }} --state open
           echo "prExists=true" >> $GITHUB_OUTPUT
 
       - name: Create pull request
