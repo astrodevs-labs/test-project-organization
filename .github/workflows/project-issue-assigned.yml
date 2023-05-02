@@ -6,11 +6,15 @@ on:
 jobs:
   create-branch-and-draft:
     runs-on: ubuntu-latest
+
+    outputs:
+      branches: ${{ fromJson(steps.find-branch-name.outputs).branches }}
+
     steps:
       - uses: actions/checkout@v2
       - name: Find branch name
         id: find-branch-name
-        uses: actions/github-script@v3
+        uses: actions/github-script@v6
         env:
           ISSUE_NUMBER: ${{ github.event.issue.number }}
           TITLE: ${{ github.event.issue.title }}
@@ -44,8 +48,7 @@ jobs:
             if (!isTask && (isUserStory || isBug || isTechnicalStory)) {
               console.log(`Branch name: ${branchName}`)
               return { 
-                branchName: branchName.replace(/--/g, '-'),
-                baseBranch: 'dev', 
+                branches: ['dev', branchName.replace(/--/g, '-')]
               }
             }
 
@@ -143,60 +146,28 @@ jobs:
             })
 
             let baseBranch = 'dev'
+            let prefix = ''
 
             if (isRootUserStory && !isRootTechnicalStory) {
-              branchName = `${process.env.BRANCH_USER_STORY_PREFIX}/${sanitizedNodes.reverse().join('/')}/${sanitizedTitle}`
-              baseBranch = `${process.env.BRANCH_USER_STORY_PREFIX}/${sanitizedNodes.reverse().join('/').toLowerCase()}`
+              prefix = process.env.BRANCH_USER_STORY_PREFIX
             } else if (isRootBug) {
-              branchName = `${process.env.BRANCH_BUG_PREFIX}/${sanitizedNodes.reverse().join('/')}/${sanitizedTitle}`
-              baseBranch = `${process.env.BRANCH_BUG_PREFIX}/${sanitizedNodes.reverse().join('/').toLowerCase()}`
+              prefix = process.env.BRANCH_BUG_PREFIX
             } else if (isRootTechnicalStory) {
-              branchName = `${process.env.BRANCH_TECHNICAL_STORY_PREFIX}/${sanitizedNodes.reverse().join('/')}/${sanitizedTitle}`
-              baseBranch = `${process.env.BRANCH_TECHNICAL_STORY_PREFIX}/${sanitizedNodes.reverse().join('/').toLowerCase()}`
-            } else
-              branchName = `${sanitizedNodes.reverse().join('/')}/${sanitizedTitle}`
+              prefix = process.env.BRANCH_TECHNICAL_STORY_PREFIX
+            }
             
             console.log(`Branch name: ${branchName}`)
-            return { branchName, baseBranch }
+            let branches = ['dev']
+            for (let i = 0; i < sanitizedNodes.length; i++) {
+              branches.push(`${prefix}/${sanitizedNodes.reverse().slice(0, i + 1).join('/')}`)
+            }
+            branches.push(`${prefix}/${sanitizedNodes.reverse().join('/')}/${sanitizedTitle}`)
+            return { branches }
 
-      - name: Check if branch exists
-        id: check-branch-exists
-        continue-on-error: true
-        run: |
-          git fetch --all
-          (git branch --list ${{ fromJson(steps.find-branch-name.outputs.result).branchName }} && echo "branchExists}=true" && echo "Branch already exists") || echo "branchExists=false"
-
-
-      - name: Create branch
-        id: create-branch
-        # if branch does not exist, create it
-        if: steps.check-branch-exists.outputs.branchExists == 'false'
-        run: |
-          git checkout -b ${{ fromJson(steps.find-branch-name.outputs.result).branchName }}
-          git config --global user.email "ci@astrodevslabs.io" && git config --global user.name "Astrodevs CI"
-          git commit --allow-empty -m "chore: create branch ${{ fromJson(steps.find-branch-name.outputs.result).branchName }}"
-          git push origin ${{ fromJson(steps.find-branch-name.outputs.result).branchName }}
-
-      - name: Check if PR exists
-        id: check-pr-exists
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          git fetch --all
-          git checkout ${{ fromJson(steps.find-branch-name.outputs.result).branchName }}
-          (gh pr view --json number --jq '.number' && echo "prExists=true" >> $GITHUB_OUTPUT) || echo "prExists=false" >> $GITHUB_OUTPUT
-        
       - name: debug
         run: |
-          echo "${{ toJson(steps.check-pr-exists.outputs) }}"
-          echo "${{ steps.check-pr-exists.outputs.prExists }}"
+          echo "Branches: ${{ fromJson(steps.find-branch-name.outputs).branches }}"
 
-      - name: Create pull request
-        if: steps.check-pr-exists.outputs.prExists == 'false'
-        env:
-          GH_TOKEN: ${{ secrets.ADMIN_PAT}}
-        run: |
-          gh pr create --title "${{ github.event.issue.title }}" --body "Solves #${{github.event.issue.number}}" --base ${{ fromJson(steps.find-branch-name.outputs.result).baseBranch }} --head ${{ fromJson(steps.find-branch-name.outputs.result).branchName }} --repo ${{ github.event.repository.full_name }} --draft
 
 
 
