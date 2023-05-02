@@ -195,7 +195,7 @@ jobs:
 
     strategy:
       matrix:
-        branch: ${{fromJson(needs.find-branches-names.outputs.branches)}}
+        branch: ${{ needs.find-branches-names.outputs.branches }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -205,7 +205,7 @@ jobs:
         continue-on-error: true
         run: |
           git fetch --all
-          (git branch --list ${{ matrix.branch.headBranch }} && echo "branchExists=true" && echo "Branch already exists") || echo "branchExists=false"
+          (git branch --list ${{ matrix.branch.headBranch }} && echo "branchExists=true" >> $GITHUB_OUTPUT && echo "Branch already exists") || echo "branchExists=false" >> $GITHUB_OUTPUT
 
 
       - name: Create branch
@@ -230,6 +230,6 @@ jobs:
       - name: Create pull request
         if: steps.check-pr-exists.outputs.prExists == 'false'
         env:
-          GH_TOKEN: ${{ secrets.ADMIN_PAT}}
+          GH_TOKEN: ${{ secrets.ADMIN_PAT }}
         run: |
           gh pr create --title "${{ matrix.branch.prTitle }}" --body "Solves #${{ matrix.branch.baseBranch }} --head ${{matrix.branch.headBranch }} --repo ${{ github.event.repository.full_name }} --draft
