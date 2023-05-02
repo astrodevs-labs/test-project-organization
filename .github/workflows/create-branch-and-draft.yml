@@ -34,6 +34,9 @@ jobs:
       - name: Check if PR exists
         id: check-pr-exists
         uses: actions/github-script@v6
+        env:
+          HEAD_BRANCH: ${{ github.event.client_payload.headBranch }}
+          BASE_BRANCH: ${{ github.event.client_payload.baseBranch }}
         with: 
           github-token: ${{ secrets.ADMIN_PAT }}
           script: |
@@ -41,8 +44,8 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               state: 'open',
-              head: `${context.repo.owner}:${github.context.payload.headBranch}`,
-              base: `${context.repo.owner}:${github.context.payload.baseBranch}`,
+              head: `${context.repo.owner}:${process.env.HEAD_BRANCH}`,
+              base: `${context.repo.owner}:${process.env.BASE_BRANCH}`,
             });
             const res = pullRequests.length > 0;
             return {
