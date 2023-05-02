@@ -1,3 +1,5 @@
+name: Project issue assigned
+
 on:
   issues:
     types: [assigned]
