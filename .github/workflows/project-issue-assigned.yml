@@ -6,10 +6,6 @@ on:
 jobs:
   create-branch-and-draft:
     runs-on: ubuntu-latest
-
-    outputs:
-      branches: ${{ fromJson(steps.find-branch-name.outputs).branches }}
-
     steps:
       - uses: actions/checkout@v2
       - name: Find branch name
@@ -165,10 +161,5 @@ jobs:
             return { branches }
 
       - name: debug
-        if: ${{ fromJson(steps.find-branch-name.outputs).branches }}
         run: |
           echo "Branches: ${{ fromJson(steps.find-branch-name.outputs).branches }}"
-
-
-
-
