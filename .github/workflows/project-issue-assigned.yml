@@ -49,6 +49,7 @@ jobs:
               console.log(`Branch name: ${branchName}`)
               return { 
                 branches: ['dev', branchName.replace(/--/g, '-')]
+                titles: ['', process.env.TITLE]
               }
             }
 
@@ -162,7 +163,7 @@ jobs:
               branches.push(`${prefix}/${sanitizedNodes.reverse().slice(0, i + 1).join('/').toLowerCase()}`)
             }
             branches.push(`${prefix}/${sanitizedNodes.reverse().join('/')}/${sanitizedTitle}`)
-            return { branches }
+            return { branches, titles: ['', ...nodes.reverse(), process.env.TITLE] }
         
       - name: format branches
         id: format-branches
@@ -175,6 +176,7 @@ jobs:
           github-token: ${{ secrets.ADMIN_PAT }}
           script: |
             const branches = JSON.parse(process.env.BRANCHES).branches
+            const titles = JSON.parse(process.env.BRANCHES).titles
             let output = []
 
             console.log(branches)
@@ -182,13 +184,14 @@ jobs:
             for (let i = 0; i < branches.length - 1; i++) {
               const branch = branches[i]
               const nextBranch = branches[i + 1]
+              const title = titles[i + 1]
 
               console.log(branch, nextBranch)
               
               output.push({
                 baseBranch: branch,
                 headBranch: nextBranch,
-                prTitle: process.env.PR_TITLE,
+                prTitle: title,
                 issueNumber: process.env.ISSUE_NUMBER
               })
             }
