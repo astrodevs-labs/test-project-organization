@@ -17,13 +17,14 @@ jobs:
         run: |
           git fetch --all
           git checkout ${{ github.event.client_payload.headBranch }}
-          (git rev-parse --verify ${{ github.event.client_payload.headBranch }} && echo "branchExists=true" >> $GITHUB_OUTPUT) || echo "branchExists=false" >> $GITHUB_OUTPUT
+          echo "branchExists=true" >> $GITHUB_OUTPUT
+          echo "Branch exists"
 
 
       - name: Create branch
         id: create-branch
         # if branch does not exist, create it
-        if: steps.check-branch-exists.outputs.branchExists == 'false'
+        if: steps.check-branch-exists.outputs.branchExists != 'true'
         run: |
           git checkout -b ${{ github.event.client_payload.headBranch }}
           git config --global user.email "ci@astrodevslabs.io" && git config --global user.name "Astrodevs CI"
