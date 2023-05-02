@@ -191,8 +191,8 @@ jobs:
               console.log(branch, nextBranch)
               
               output.push({
-                baseBranch: branch,
-                headBranch: nextBranch,
+                baseBranch: branch === 'dev' ? 'dev' : `${branch}-staging`,
+                headBranch: `${nextBranch}-staging`,
                 prTitle: title,
                 issueNumber: process.env.ISSUE_NUMBER
               })
