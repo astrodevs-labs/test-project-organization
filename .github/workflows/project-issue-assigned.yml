@@ -159,8 +159,7 @@ jobs:
             }
             branches.push(`${prefix}/${sanitizedNodes.reverse().join('/')}/${sanitizedTitle}`)
             return { branches }
-
-      - name: debug
-        run: | 
-          echo test
-          echo "Branches: ${{ toJson(fromJson(steps.find-branch-name.outputs).branches) }}"
+        
+      - name: Create branch
+        run: |
+          echo "test"
