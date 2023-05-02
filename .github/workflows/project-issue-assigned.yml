@@ -174,7 +174,7 @@ jobs:
         with:
           github-token: ${{ secrets.ADMIN_PAT }}
           script: |
-            const branches = JSON.parse(process.env.BRANCHES)
+            const branches = JSON.parse(process.env.BRANCHES).branches
             let output = []
 
             console.log(branches)
