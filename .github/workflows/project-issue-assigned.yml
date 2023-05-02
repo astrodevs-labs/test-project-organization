@@ -160,6 +160,7 @@ jobs:
             branches.push(`${prefix}/${sanitizedNodes.reverse().join('/')}/${sanitizedTitle}`)
             return { branches }
 
-      #- name: debug
-      #  run: |
-      #    echo "Branches: ${{ fromJson(steps.find-branch-name.outputs).branches }}"
+      - name: debug
+        run: | 
+          echo test
+          echo "Branches: ${{ fromJson(steps.find-branch-name.outputs).branches }}"
