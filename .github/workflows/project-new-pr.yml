@@ -76,14 +76,14 @@ jobs:
             const createManagementVariables = {
               input: {
                 projectId: management.id,
-                contentId: context.payload.issue.node_id
+                contentId: context.payload.pull_request.id
               }
             }
 
             const createDevelopmentVariables = {
               input: {
                 projectId: development.id,
-                contentId: context.payload.issue.node_id
+                contentId: context.payload.pull_request.id
               }
             }
 
