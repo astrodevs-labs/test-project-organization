@@ -33,16 +33,24 @@ jobs:
 
       - name: Check if PR exists
         id: check-pr-exists
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          git fetch --all
-          git checkout ${{ github.event.client_payload.headBranch }}
-          gh pr list --repo ${{ github.event.repository.full_name }} --base ${{github.event.client_payload.baseBranch }} --head ${{github.event.client_payload.headBranch }} --state open
-          echo "prExists=true" >> $GITHUB_OUTPUT
+        uses: actions/github-script@v6
+        with: 
+          github-token: ${{ secrets.ADMIN_PAT }}
+          script: |
+            const { data: pullRequests } = await github.pulls.list({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              head: `${context.repo.owner}:${github.context.payload.headBranch}`,
+              base: `${context.repo.owner}:${github.context.payload.baseBranch}`,
+            });
+            const res = pullRequests.length > 0;
+            return {
+              prExists: res.toString(),
+            };
 
       - name: Create pull request
-        if: steps.check-pr-exists.outputs.prExists != 'true'
+        if: steps.check-pr-exists.outputs.result.prExists != 'true'
         env:
           GH_TOKEN: ${{ secrets.ADMIN_PAT }}
         run: |
