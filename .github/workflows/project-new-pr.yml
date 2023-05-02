@@ -131,9 +131,9 @@ jobs:
             console.log(informations)
 
             const managementReviewStatusField = informations.management.fields.find(field => field.name === process.env.PROJECT_REVIEW_STATUS_NAME)
-            const managementStartOption = managementReviewStatus.options.find(option => option.name === process.env.PROJECT_REVIEW_STATUS_START)
+            const managementStartOption = managementReviewStatusField.options.find(option => option.name === process.env.PROJECT_REVIEW_STATUS_START)
             const developmentReviewStatusField = informations.development.fields.find(field => field.name === process.env.PROJECT_REVIEW_STATUS_NAME)
-            const developmentStartOption = developmentReviewStatus.options.find(option => option.name === process.env.PROJECT_REVIEW_STATUS_START)
+            const developmentStartOption = developmentReviewStatusField.options.find(option => option.name === process.env.PROJECT_REVIEW_STATUS_START)
 
             const managementVariables = {
               input: {
