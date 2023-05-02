@@ -176,8 +176,8 @@ jobs:
               await github.rest.actions.createWorkflowDispatch({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
-                workflow_id: 'create-branch.yml',
-                ref: 'main',
+                workflow_id: 'create-branch-and-draft.yml',
+                ref: 'master',
                 inputs: {
                   baseBranch: branch,
                   headBranch: nextBranch,
