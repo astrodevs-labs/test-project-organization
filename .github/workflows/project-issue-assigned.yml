@@ -165,8 +165,7 @@ jobs:
             return { branches }
 
       - name: debug
-        run: |
-          echo "Branches: ${{ fromJson(steps.find-branch-name.outputs).branches }}"
+        run: "echo 'Branches: ${{ fromJson(steps.find-branch-name.outputs).branches }}'"
 
 
 
