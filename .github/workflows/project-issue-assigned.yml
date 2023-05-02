@@ -177,9 +177,13 @@ jobs:
             const branches = JSON.parse(process.env.BRANCHES)
             let output = []
 
+            console.log(branches)
+
             for (let i = 0; i < branches.length - 1; i++) {
               const branch = branches[i]
               const nextBranch = branches[i + 1]
+
+              console.log(branch, nextBranch)
               
               output.push({
                 baseBranch: branch,
