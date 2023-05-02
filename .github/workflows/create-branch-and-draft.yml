@@ -37,7 +37,7 @@ jobs:
         with: 
           github-token: ${{ secrets.ADMIN_PAT }}
           script: |
-            const { data: pullRequests } = await github.pulls.list({
+            const { data: pullRequests } = await github.rest.pulls.list({
               owner: context.repo.owner,
               repo: context.repo.repo,
               state: 'open',
