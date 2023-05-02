@@ -167,6 +167,7 @@ jobs:
           ISSUE_NUMBER: ${{ github.event.issue.number }}
           BRANCHES: ${{ steps.find-branch-name.outputs.result }}
         with:
+          github-token: ${{ secrets.ADMIN_PAT }}
           script: |
             const branches = JSON.parse(process.env.BRANCHES)
 
