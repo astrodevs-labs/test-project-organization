@@ -48,7 +48,7 @@ jobs:
             if (!isTask && (isUserStory || isBug || isTechnicalStory)) {
               console.log(`Branch name: ${branchName}`)
               return { 
-                branches: ['dev', branchName.replace(/--/g, '-')]
+                branches: ['dev', branchName.replace(/--/g, '-')],
                 titles: ['', process.env.TITLE]
               }
             }
