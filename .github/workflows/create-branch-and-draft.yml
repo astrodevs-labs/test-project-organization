@@ -13,10 +13,11 @@ jobs:
       - name: Check if branch exists
         id: check-branch-exists
         continue-on-error: true
+        # should check if branch exists and set branchExists=true if it does, otherwise branchExists=false
         run: |
           git fetch --all
-          git branch -a
-          (git branch --list ${{ github.event.client_payload.headBranch }} && echo "branchExists=true" >> $GITHUB_OUTPUT && echo "Branch already exists") || echo "branchExists=false" >> $GITHUB_OUTPUT
+          git checkout ${{ github.event.client_payload.headBranch }}
+          (git rev-parse --verify ${{ github.event.client_payload.headBranch }} && echo "branchExists=true" >> $GITHUB_OUTPUT) || echo "branchExists=false" >> $GITHUB_OUTPUT
 
 
       - name: Create branch
