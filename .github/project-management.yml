@@ -9,3 +9,5 @@ bugLabel: Bug
 taskLabel: Task
 
 TechnicalStoryLabel: Technical story
+
+cardTypeFieldName: Type
