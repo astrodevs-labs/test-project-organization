@@ -31,10 +31,10 @@ jobs:
               }
             }`;
 
-            console.log(context.payload.pull_request.node_id)
+            console.log(context.payload.pull_request.number)
 
             const variables = {
-              number: context.payload.pull_request.node_id,
+              number: context.payload.pull_request.number,
               owner: context.repo.owner,
               name: context.repo.repo,
             };
