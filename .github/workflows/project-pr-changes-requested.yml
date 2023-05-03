@@ -65,13 +65,14 @@ jobs:
 
             projevtItems.forEach(async (item) => {
               const mutationVariables = {
-              input: {
-                projectId: item.project.id,
-                itemId: item.id,
-                value: {
-                  singleSelectOptionId: item.fieldValueByName?.field?.options.find(option => option.name === process.env.PROJECT_REVIEW_STATUS_CHANGES_REQUESTED)?.id
-                },
-                fieldId: item.fieldValueByName?.field?.id
+                input: {
+                  projectId: item.project.id,
+                  itemId: item.id,
+                  value: {
+                    singleSelectOptionId: item.fieldValueByName?.field?.options.find(option => option.name === process.env.PROJECT_REVIEW_STATUS_CHANGES_REQUESTED)?.id
+                  },
+                  fieldId: item.fieldValueByName?.field?.id
+                }
               }
 
               await github.graphql(mutation, mutationVariables)
