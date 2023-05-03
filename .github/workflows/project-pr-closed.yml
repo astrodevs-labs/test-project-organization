@@ -46,7 +46,7 @@ jobs:
               }
             }`;
 
-            projectItems.forEach((item) => {
+            projectItems.forEach(async (item) => {
               const variables = {
                 input: {
                   itemId: item.id,
