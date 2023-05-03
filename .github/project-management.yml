@@ -20,6 +20,8 @@ cardManagementReviewStatusStart: Todo
 
 cardDevelopmentReviewStatusFieldName: Waiting
 
+cardReviewStatusChangesRequested: Changes requested
+
 
 cardTypeUserStory: User story
 
