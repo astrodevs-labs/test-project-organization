@@ -27,14 +27,15 @@ jobs:
                         id
                       }
                       fieldValueByName(name: $name) {
-                      ... on ProjectV2ItemFieldSingleSelectValue {
-                        id
-                        field {
-                          ... on ProjectV2SingleSelectField {
-                            id
-                            options {
+                        ... on ProjectV2ItemFieldSingleSelectValue {
+                          id
+                          field {
+                            ... on ProjectV2SingleSelectField {
                               id
-                              name
+                              options {
+                                id
+                                name
+                              }
                             }
                           }
                         }
