@@ -31,6 +31,8 @@ jobs:
               }
             }`;
 
+            console.log(context.payload.pull_request.node_id)
+
             const variables = {
               number: context.payload.pull_request.node_id,
               owner: context.repo.owner,
