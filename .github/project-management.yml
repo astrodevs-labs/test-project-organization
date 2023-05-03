@@ -19,3 +19,14 @@ cardReviewStatusFieldName: Review status
 cardManagementReviewStatusStart: Todo
 
 cardDevelopmentReviewStatusFieldName: Waiting
+
+
+cardTypeUserStory: User story
+
+cardTypeTechnicalStory: Technical story
+cardTypeBug: Bug
+cardTypeTask: Task
+
+branchUserStoryPrefix: feature
+branchTechnicalStoryPrefix: chore
+branchBugPrefix: bug
