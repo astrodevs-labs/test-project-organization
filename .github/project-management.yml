@@ -1,5 +1,7 @@
 projectManagementName: Project Management
 
+projectDevelopmentName: Project Development
+
 projectManagementStatusStart: To describe
 
 userStoryLabel: User story
@@ -11,3 +13,9 @@ taskLabel: Task
 TechnicalStoryLabel: Technical story
 
 cardTypeFieldName: Type
+
+cardReviewStatusFieldName: Review status
+
+cardManagementReviewStatusStart: Todo
+
+cardDevelopmentReviewStatusFieldName: Waiting
