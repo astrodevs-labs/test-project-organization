@@ -1,3 +1,6 @@
+
+name: Delete project cards
+
 on:
   pull_request:
     types: [closed]
@@ -7,9 +10,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: Create project card
+      - name: Delete project card
         uses: actions/github-script@v6
-        id: create-project-card
+        id: delete-project-card
         env:
           PROJECT_MANAGEMENT_NAME: ${{ vars.PROJECT_MANAGEMENT_NAME }}
           PROJECT_DEVELOPMENT_NAME: ${{ vars.PROJECT_DEVELOPMENT_NAME }}
