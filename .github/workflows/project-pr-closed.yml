@@ -19,7 +19,7 @@ jobs:
             const query = `query Nodes($number: Int!, $owner: String!, $name: String!) {
               repository(owner: $owner, name: $name) {
                 pullRequest(number: $number) {
-                  projectItems {
+                  projectItems(first: 100) {
                     nodes {
                       id
                       project {
