@@ -52,7 +52,7 @@ jobs:
               const variables = {
                 input: {
                   itemId: item.id,
-                  projectID: item.project.id,
+                  projectId: item.project.id,
                 },
               };
 
