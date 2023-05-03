@@ -1,0 +1,63 @@
+
+name: Delete project cards
+
+on:
+  pull_request:
+    types: [closed]
+
+jobs:
+  delete-cards:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Delete project card
+        uses: actions/github-script@v6
+        id: delete-project-card
+        env:
+          PROJECT_MANAGEMENT_NAME: ${{ vars.PROJECT_MANAGEMENT_NAME }}
+          PROJECT_DEVELOPMENT_NAME: ${{ vars.PROJECT_DEVELOPMENT_NAME }}
+        with:
+          github-token: ${{ secrets.ADMIN_PAT }}
+          script: |
+            const query = `query Nodes($number: Int!, $owner: String!, $name: String!) {
+              repository(owner: $owner, name: $name) {
+                pullRequest(number: $number) {
+                  projectItems(first: 100) {
+                    nodes {
+                      id
+                      project {
+                        id
+                      }
+                    }
+                  }
+                }
+              }
+            }`;
+
+            const variables = {
+              number: context.payload.pull_request.number,
+              owner: context.repo.owner,
+              name: context.repo.repo,
+            };
+
+            const result = await github.graphql(query, variables)
+            const projectItems = result.repository.pullRequest.projectItems.nodes
+
+            const mutation = `mutation DeleteProjectV2Item($input: DeleteProjectV2ItemInput!) {
+              deleteProjectV2Item(input: $input) {
+                deletedItemId
+              }
+            }`;
+
+            projectItems.forEach(async (item) => {
+              const variables = {
+                input: {
+                  itemId: item.id,
+                  projectId: item.project.id,
+                },
+              };
+
+              await github.graphql(mutation, variables)
+            })
+
+    

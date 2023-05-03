@@ -1,0 +1,163 @@
+on:
+  pull_request:
+    types: [opened]
+
+jobs:
+  create-cards:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Create project card
+        uses: actions/github-script@v6
+        id: create-project-card
+        env:
+          PROJECT_MANAGEMENT_NAME: ${{ vars.PROJECT_MANAGEMENT_NAME }}
+          PROJECT_DEVELOPMENT_NAME: ${{ vars.PROJECT_DEVELOPMENT_NAME }}
+        with:
+          github-token: ${{ secrets.ADMIN_PAT }}
+          script: |
+            const query = `
+              query($organization: String!) {
+                organization(login: $organization) {
+                  projectsV2(first: 10) {
+                    nodes {
+                      id
+                      title
+                    }
+                  }
+                }
+              }
+            `
+            const variables = {
+              organization: context.repo.owner
+            }
+
+            const projects = await github.graphql(query, variables)
+            console.log(process.env.MANAGEMENT_PROJECT_NAME)
+            const management = projects.organization.projectsV2.nodes.find(project => project.title === process.env.PROJECT_MANAGEMENT_NAME)
+            const development = projects.organization.projectsV2.nodes.find(project => project.title === process.env.PROJECT_DEVELOPMENT_NAME)
+            if (!management) {
+              throw new Error('Project Management project not found')
+            } else if (!development) {
+              throw new Error('Project Development project not found')
+            }
+            
+            const createMutation = `
+              mutation($input: AddProjectV2ItemByIdInput!) {
+                addProjectV2ItemById(input: $input) {
+                  item {
+                    id
+                    project {
+                      fields(first: 20) {
+                        nodes {
+                          ... on ProjectV2Field {
+                            name
+                            id
+                          }
+                          ... on ProjectV2SingleSelectField {
+                            options {
+                              name
+                              id
+                            }
+                            name
+                            id
+                          }
+                          ... on ProjectV2IterationField {
+                            id
+                            name
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }`
+
+            const createManagementVariables = {
+              input: {
+                projectId: management.id,
+                contentId: context.payload.pull_request.node_id
+              }
+            }
+
+            const createDevelopmentVariables = {
+              input: {
+                projectId: development.id,
+                contentId: context.payload.pull_request.node_id
+              }
+            }
+
+            const managementResult = await github.graphql(createMutation, createManagementVariables)
+            const develomentResult = await github.graphql(createMutation, createDevelopmentVariables)
+
+            const maagementCardId = managementResult.addProjectV2ItemById.item.id
+            const managementCardFields = managementResult.addProjectV2ItemById.item.project.fields.nodes
+            const developmentCardId = develomentResult.addProjectV2ItemById.item.id
+            const developmentCardFields = develomentResult.addProjectV2ItemById.item.project.fields.nodes
+
+            const ret = {
+              management: {
+                cardId: maagementCardId,
+                projectId: management.id,
+                fields: managementCardFields
+              },
+              development: {
+                cardId: developmentCardId,
+                projectId: development.id,
+                fields: developmentCardFields
+              }
+            }
+
+            return ret
+
+      - name: set review status
+        uses: actions/github-script@v6
+        env:
+          INFORMATIONS: ${{ steps.create-project-card.outputs.result }}
+          PROJECT_REVIEW_STATUS_NAME: ${{ vars.PROJECT_REVIEW_STATUS_NAME }}
+          PROJECT_MANAGEMENT_REVIEW_STATUS_START: ${{ vars.PROJECT_MANAGEMENT_REVIEW_STATUS_START }}
+          PROJECT_DEVELOPMENT_REVIEW_STATUS_START: ${{ vars.PROJECT_DEVELOPMENT_REVIEW_STATUS_START }}
+        with:
+          github-token: ${{ secrets.ADMIN_PAT }}
+          script: |
+            const mutation = `mutation($input: UpdateProjectV2ItemFieldValueInput!) {
+              updateProjectV2ItemFieldValue(input: $input) {
+                projectV2Item {
+                  id
+                }
+              }
+            }`
+
+            const informations = JSON.parse(process.env.INFORMATIONS)
+            console.log(informations)
+            console.log(informations.management.fields)
+            console.log(informations.development.fields)
+
+            const managementReviewStatusField = informations.management.fields.find(field => field.name === process.env.PROJECT_REVIEW_STATUS_NAME)
+            const managementStartOption = managementReviewStatusField.options.find(option => option.name === process.env.PROJECT_MANAGEMENT_REVIEW_STATUS_START)
+            const developmentReviewStatusField = informations.development.fields.find(field => field.name === process.env.PROJECT_REVIEW_STATUS_NAME)
+            const developmentStartOption = developmentReviewStatusField.options.find(option => option.name === process.env.PROJECT_DEVELOPMENT_REVIEW_STATUS_START)
+
+            const managementVariables = {
+              input: {
+                projectId: informations.management.projectId,
+                itemId: informations.management.cardId,
+                value: {
+                  singleSelectOptionId: managementStartOption.id
+                },
+                fieldId: managementReviewStatusField.id
+              }
+            }
+            const developmentVariables = {
+              input: {
+                projectId: informations.development.projectId,
+                itemId: informations.development.cardId,
+                value: {
+                  singleSelectOptionId: developmentStartOption.id
+                },
+                fieldId: developmentReviewStatusField.id
+              }
+            }
+
+            await github.graphql(mutation, managementVariables)
+            await github.graphql(mutation, developmentVariables)
