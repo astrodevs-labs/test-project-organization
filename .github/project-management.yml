@@ -22,6 +22,8 @@ cardDevelopmentReviewStatusFieldName: Waiting
 
 cardReviewStatusChangesRequested: Changes requested
 
+cardReviewStatusInReview: In review
+
 
 cardTypeUserStory: User story
 
