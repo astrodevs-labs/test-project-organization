@@ -1,0 +1,83 @@
+on:
+  pull_request_review:
+    types: [submitted]
+  
+jobs:
+  move-cards:
+    # if changes are requested
+    if: github.event.review.state == 'changes_requested'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Move project cards
+        uses: actions/github-script@v6
+        env:
+          PROJECT_REVIEW_STATUS_NAME: ${{ vars.PROJECT_REVIEW_STATUS_NAME}}
+          PROJECT_REVIEW_STATUS_CHANGES_REQUESTED: ${{ vars.PROJECT_REVIEW_STATUS_CHANGES_REQUESTED}}
+        with:
+          github-token: ${{ secrets.ADMIN_PAT }}
+          script: |
+            const query = `query Nodes($number: Int!, $owner: String!, $repoName: String!, $name: String) {
+              repository(owner: $owner, name: $repoName) {
+                pullRequest(number: $number) {
+                  projectItems(first: 100) {
+                    nodes {
+                      id
+                      project {
+                        id
+                      }
+                      fieldValueByName(name: $name) {
+                        ... on ProjectV2ItemFieldSingleSelectValue {
+                          id
+                          field {
+                            ... on ProjectV2SingleSelectField {
+                              id
+                              options {
+                                id
+                                name
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }`;
+
+            const variables = {
+              number: context.payload.pull_request.number,
+              owner: context.repo.owner,
+              repoName: context.repo.repo,
+              name: process.env.PROJECT_REVIEW_STATUS_NAME
+            };
+
+            const result = await github.graphql(query, variables)
+            const projectItems = result.repository.pullRequest.projectItems.nodes
+
+            const mutation = `mutation($input: UpdateProjectV2ItemFieldValueInput!) {
+              updateProjectV2ItemFieldValue(input: $input) {
+                projectV2Item {
+                  id
+                }
+              }
+            }`
+
+            projevtItems.forEach(async (item) => {
+              const mutationVariables = {
+                input: {
+                  projectId: item.project.id,
+                  itemId: item.id,
+                  value: {
+                    singleSelectOptionId: item.fieldValueByName?.field?.options.find(option => option.name === process.env.PROJECT_REVIEW_STATUS_CHANGES_REQUESTED)?.id
+                  },
+                  fieldId: item.fieldValueByName?.field?.id
+                }
+              }
+
+              await github.graphql(mutation, mutationVariables)
+            })
+
+
+

@@ -1,0 +1,42 @@
+projectManagementName: Project Management
+
+projectDevelopmentName: Project Development
+
+projectManagementStatusStart: To describe
+
+userStoryLabel: User story
+
+bugLabel: Bug
+
+taskLabel: Task
+
+TechnicalStoryLabel: Technical story
+
+cardTypeFieldName: Type
+
+cardReviewStatusFieldName: Review status
+
+cardManagementReviewStatusStart: Todo
+
+cardDevelopmentReviewStatusFieldName: Waiting
+
+cardReviewStatusChangesRequested: Changes requested
+
+cardReviewStatusInReview: In review
+
+cardReviewStatusFunctionalReview: Functional review
+
+cardReviewStatusStaging: Staging
+
+cardReviewStatusDone: Done
+
+
+cardTypeUserStory: User story
+
+cardTypeTechnicalStory: Technical story
+cardTypeBug: Bug
+cardTypeTask: Task
+
+branchUserStoryPrefix: feature
+branchTechnicalStoryPrefix: chore
+branchBugPrefix: bug

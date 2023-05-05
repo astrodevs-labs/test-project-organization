@@ -28,7 +28,7 @@ jobs:
         run: |
           git checkout -b ${{ github.event.client_payload.headBranch }}
           git config --global user.email "ci@astrodevslabs.io" && git config --global user.name "Astrodevs CI"
-          git commit --allow-empty -m "chore: create branch ${{ github.event.client_payload.headBranch }}"
+          git commit --allow-empty -m "chore: create branch ${{ github.event.client_payload.headBranch }}-staging"
           git push origin ${{ github.event.client_payload.headBranch }}
 
       - name: Check if PR exists
