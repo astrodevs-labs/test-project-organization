@@ -24,6 +24,8 @@ cardReviewStatusChangesRequested: Changes requested
 
 cardReviewStatusInReview: In review
 
+cardReviewStatusFunctionalReview: Functional review
+
 
 cardTypeUserStory: User story
 
