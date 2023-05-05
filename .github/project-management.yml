@@ -26,6 +26,8 @@ cardReviewStatusInReview: In review
 
 cardReviewStatusFunctionalReview: Functional review
 
+cardReviewStatusStaging: Staging
+
 
 cardTypeUserStory: User story
 
