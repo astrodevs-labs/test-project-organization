@@ -18,6 +18,10 @@ cardReviewStatusFieldName: Review status
 
 cardPreparationStatusFieldName: Status
 
+cardLoadFieldName: Load (day/man)
+
+cardIterationFieldName: Sprint
+
 cardManagementReviewStatusStart: Todo
 
 cardDevelopmentReviewStatusFieldName: Waiting
