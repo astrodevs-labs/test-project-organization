@@ -16,6 +16,8 @@ cardTypeFieldName: Type
 
 cardReviewStatusFieldName: Review status
 
+cardPreparationStatusFieldName: Status
+
 cardManagementReviewStatusStart: Todo
 
 cardDevelopmentReviewStatusFieldName: Waiting
