@@ -38,6 +38,8 @@ cardReviewStatusDone: Done
 
 cardStatusPlanned: Planned
 
+cardDevelopmentStatusStart: Todo
+
 cardTypeUserStory: User story
 
 cardTypeTechnicalStory: Technical story
