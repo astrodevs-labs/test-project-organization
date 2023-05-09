@@ -16,6 +16,12 @@ cardTypeFieldName: Type
 
 cardReviewStatusFieldName: Review status
 
+cardPreparationStatusFieldName: Status
+
+cardLoadFieldName: Load (day/man)
+
+cardIterationFieldName: Sprint
+
 cardManagementReviewStatusStart: Todo
 
 cardDevelopmentReviewStatusFieldName: Waiting
@@ -30,6 +36,9 @@ cardReviewStatusStaging: Staging
 
 cardReviewStatusDone: Done
 
+cardStatusPlanned: Planned
+
+cardDevelopmentStatusStart: Todo
 
 cardTypeUserStory: User story
 
