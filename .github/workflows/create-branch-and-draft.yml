@@ -54,7 +54,5 @@ jobs:
 
       - name: Create pull request
         if: steps.check-pr-exists.outputs.result.prExists != 'true'
-        env:
-          GH_TOKEN: ${{ secrets.ADMIN_PAT }}
         run: |
           gh pr create --title "${{ github.event.client_payload.prTitle }}" --body "Solves #${{ github.event.client_payload.issueNumber }}" --base ${{github.event.client_payload.baseBranch }} --head ${{github.event.client_payload.headBranch }} --repo ${{ github.event.repository.full_name }} --draft
